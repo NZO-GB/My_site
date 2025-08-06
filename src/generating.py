@@ -3,7 +3,7 @@ import os, shutil, re
 from markdown_blocks import markdown_to_html_node
 
 def copy_from_to_dir(source, destination):
-
+    print(source)
     if not os.path.exists(source):
         raise Exception("source doesn't exist")
 
@@ -37,7 +37,7 @@ def extract_title(markdown):
     title = title_search[0].strip()
     return title
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
 
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     with open(from_path) as f:
@@ -47,10 +47,11 @@ def generate_page(from_path, template_path, dest_path):
     from_html = markdown_to_html_node(from_file).to_html()
     title = extract_title(from_file)
     dest_file = template_file.replace(r"{{ Title }}", title).replace(r"{{ Content }}", from_html)
+    dest_file = dest_file.replace('href="/', f'href="{basepath}').replace('src="/', f'src="{basepath}')
     with open(dest_path, "w") as f:
         f.write(dest_file)
     
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
 
     print(f"Recursive IN {dir_path_content} to {dest_dir_path} using {template_path}")
 
@@ -62,8 +63,8 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
         if element.endswith(".md"): 
             print(f"MARKDOWN {element}")
             dest_element_path = dest_element_path.replace(".md", ".html")
-            generate_page(element_path, template_path, dest_element_path)
+            generate_page(element_path, template_path, dest_element_path, basepath)
         elif not os.path.isfile(element_path):
             print(f"DIRECTORY {element}")
             os.mkdir(dest_element_path)
-            generate_pages_recursive(element_path, template_path, dest_element_path)
+            generate_pages_recursive(element_path, template_path, dest_element_path, basepath)
