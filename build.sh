@@ -1,1 +1,1 @@
-python3 src/main.py "NZO-GB/My_site"
+python3 src/main.py "My_site"
